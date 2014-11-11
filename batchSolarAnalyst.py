@@ -31,6 +31,7 @@ import time
 import dbconn_quick
 import shutil
 import datetime
+import dbconn
 from config import *
 print "Importing arcpy"
 import arcpy
@@ -169,8 +170,18 @@ while len(res) > 0:
         # set processing environment
         arcpy.env.extent = arcpy.sa.Extent(x_min, y_min, x_max, y_max)
 
-        clipped_solar_raster_dir = out_path + os.sep + 'SRR_' + str(row['id'] / 1000 * 1000).zfill(4) + os.sep
-        clipped_solar_raster =  clipped_solar_raster_dir + 'SRR_' + str(row['id']) + '.img' # what raster format do we want???
+        # lookup dsm tile id
+        demno = 0
+        q = """
+            SELECT d.id FROM dem_fishnets d,sa_fishnets s WHERE ST_WITHIN(s.the_geom,d.the_geom) AND s.id=""" + str(row['id']) + """
+        """
+        t = dbconn.run_query(q)
+        for s in t:
+            demno = str(s['id'])
+            
+        #clipped_solar_raster_dir = out_path + os.sep + 'SRR_' + str(row['id'] / 1000 * 1000).zfill(4) + os.sep
+        clipped_solar_raster_dir = out_path + os.sep + demno + os.sep        
+        clipped_solar_raster =  clipped_solar_raster_dir + str(row['id']) + '.img' # what raster format do we want???
 
         if not os.path.exists(clipped_solar_raster_dir):
             os.mkdir(clipped_solar_raster_dir)

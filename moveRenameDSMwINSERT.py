@@ -51,8 +51,19 @@ for img in glob.glob(demdir + '\\*.img'):
 
     laz = str(rec['tile']) + " - " + str(rec['q250k'])
 
-    if not os.path.exists(destdir + "\\q" + str(rec['q250k'])):
-        os.mkdir(destdir + "\\q" + str(rec['q250k']))
+    #if not os.path.exists(destdir + "\\q" + str(rec['q250k'])):
+    #    os.mkdir(destdir + "\\q" + str(rec['q250k']))
+
+##    for ext in extensions:
+##        srcfile = demdir + "\\" + imgnumber + ext
+##        dstfile = destdir + "\\q" + c + "\\" + str(rec['tile']) + "_" + imgnumber + ext
+##            
+##        try:
+##            print srcfile
+##            print dstfile
+##            shutil.move(srcfile,dstfile)
+##            
+##            pass
 
     qq = """
     UPDATE dem_fishnets SET 
@@ -64,15 +75,5 @@ for img in glob.glob(demdir + '\\*.img'):
         print 'SUCCESS', qq
     except:
         print 'FAILURE'
-
-    for ext in extensions:
-        srcfile = demdir + "\\" + imgnumber + ext
-        dstfile = destdir + "\\q" + str(rec['q250k']) + "\\" + str(rec['tile']) + "_" + imgnumber + ext
-            
-        try:
-            print srcfile
-            print dstfile
-            #shutil.move(srcfile,dstfile)
-            print
-        except:
-            pass
+    
+    

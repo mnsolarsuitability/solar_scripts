@@ -2,12 +2,13 @@
 # TODO: Comment everything
 [postgres]
 # Postgres database connection options
-host = localhost
-user = solaruser
-pass = solarpass
+host = 134.84.220.58 
+user = postgres 
+pass = 2014solarishot!
 dbname = solar
+schema = public
 
-# Postgres query options
+# Postgres query optionsa
 [projection]
 srid = 26915
 prj_file = 26915.prj
@@ -22,13 +23,15 @@ dem_fishnet_size = 10000
 dem_fishnet_rounding_digits = 3
 
 [blast2dem]
-additional_parameters = -first_only -elevation -drop_class 0 1 7 12
+additional_parameters = -first_only -elevation -drop_class 7 12
 
 [paths]
-las_dir = D:\SolarResourceData
-dem_output_dir = D:\MichaelTest\DemOutput
-solar_raster_output_dir = D:\MichaelTest\SolarRasterOutput
-temp_dir = z:\tmp
-workspace = Z:\home\arcgis\workspace
-extra_python_dirs = Z:\home\arcgis
-
+las_dir = F:\SolarResourceData\MN_Lidar_LAZ
+dem_output_dir = D:\MN_Solar_Suitability_Analysis\MN_DSM\New_DSM_Tiles
+solar_raster_output_dir =  D:\MN_Solar_Suitability_Analysis\MN_Solar\New_Solar_Tiles
+temp_dir = D:\temp
+lastools_bin_dir = D:\lastools\bin
+workspace = D:\WorkSpace
+dem_mosaic = D:\MN_Solar_Suitability_Analysis\MN_DSM\MN_DSM_Mosaic.gdb\MN_DSM
+extra_python_dirs = D:\Scripts\bin\gdal\python;D:\Scripts\bin\ms\python
+extra_path_dirs = D:\Scripts\bin;D:\Scripts\bin\gdal\python\osgeo;D:\Scripts\bin\proj\apps;D:\Scripts\bin\gdal\apps;D:\Scripts\bin\ms\apps;D:\Scripts\bin\curl;D:\Scripts\bin\gdal\csharp;D:\Scripts\bin\ms\csharp

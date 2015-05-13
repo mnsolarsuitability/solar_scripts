@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+
+src = 'P:\MN_Solar\Solar_Tiles\51\184564.img'
+dst = 'C:\Users\geodesign\Desktop\tmp'
+
+# This creates a symbolic link on python in tmp directory
+os.symlink(src, dst)
+
+print "symlink created"

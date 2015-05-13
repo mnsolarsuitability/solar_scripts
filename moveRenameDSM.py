@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-# Usage: C:\Users\geodesign>C:\Python27\ArcGIS10.2\python.exe Y:\solar_scripts\exportSolarByCounty.py C:\Users\geodesign\Desktop\tmp ('Watonwan','Ramsey') both
-
 import os,subprocess
 import glob,dbconn_quick,dbconn
 import os.path
@@ -10,12 +7,9 @@ import shutil, sys
 
 
 ###### SETUP THESE PARAMETERS ACCORDINGLY ############
-#solardir = 'P:\\MN_Solar\\Solar_Tiles\\'
 solardir = r'\\files.umn.edu\US\GIS\U-Spatial\SolarResourceData\MN_Solar'
 demdir = r'\\files.umn.edu\US\GIS\U-Spatial\SolarResourceData\MN_DSM\MN_DSM_Tiles'
-
 destdir = r'\\files.umn.edu\US\GIS\U-Spatial\SolarResourceData\MN_DSM\q250k'
-
 ######################################################
 
 extensions = [
@@ -25,13 +19,16 @@ extensions = [
         '.img.xml'
         ]
 
-#os.makedirs(solardir + r'\mytestdir')
+# Enable debugging:
 #import pdb; pdb.set_trace()
+
+# Loop through unique .img files in each directory
 for img in glob.glob(demdir + '\\*.img'):
     imgnumber = img.replace(demdir + '\\','').replace('.img','')
     print
     print imgnumber
-    #imgnumber = '3330'
+
+    # 1) Query source lidar tile that centroid of DSM tile falls within
     q = """
         SELECT l.tile,l.q250k FROM dem_fishnets d,lidar_bbox l WHERE ST_WITHIN(ST_CENTROID(d.the_geom),l.the_geom) AND d.id=""" + imgnumber + """
     """
@@ -42,6 +39,7 @@ for img in glob.glob(demdir + '\\*.img'):
     if rec == None:
         print "Centroid does not fall in a lidar tile"
 
+        # 2) Centroid not in laz tile so next query first tile that intersects
         q = """
             SELECT l.tile,l.q250k FROM dem_fishnets d,lidar_bbox l WHERE ST_INTERSECTS(d.the_geom,l.the_geom) AND d.id=""" + imgnumber + """
         """
@@ -51,9 +49,11 @@ for img in glob.glob(demdir + '\\*.img'):
 
     laz = str(rec['tile']) + " - " + str(rec['q250k'])
 
+    # Create the q250k directory if it doesn't exist yet
     if not os.path.exists(destdir + "\\q" + str(rec['q250k'])):
         os.mkdir(destdir + "\\q" + str(rec['q250k']))
 
+    # 4) Write the filename, q250k index, and path back to the database
     qq = """
     UPDATE dem_fishnets SET 
     filename = '""" + str(rec['tile']) + "_" + imgnumber + """.img',
@@ -72,7 +72,7 @@ for img in glob.glob(demdir + '\\*.img'):
         try:
             print srcfile
             print dstfile
-            #shutil.move(srcfile,dstfile)
+            shutil.copy2(srcfile,dstfile)
             print
         except:
             pass

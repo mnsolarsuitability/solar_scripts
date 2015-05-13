@@ -26,16 +26,18 @@ extensions = [
 #os.makedirs(solardir + r'\mytestdir')
 #import pdb; pdb.set_trace()
 
+# Loop through each directory
 for dirname in glob.glob(solardir + "\\*"):
     print "Processing " + dirname
 
     dirno = dirname.replace(solardir + "\\",'')
 
+    # Loop through each unique set of .img and related files
     updatewhere = []
     for img in glob.glob(dirname + '\\*.img'):
         imgnumber = img.replace(dirname + '\\','').replace('.img','')
-        print imgnumber
-    
+        
+        # 1) Query source lidar tile that centroid of solar tile falls within
         q = """
             SELECT l.tile,l.q250k FROM sa_fishnets s,lidar_bbox l
             WHERE ST_WITHIN(ST_CENTROID(s.the_geom),l.the_geom) AND s.id=""" + imgnumber + """
@@ -46,6 +48,7 @@ for dirname in glob.glob(solardir + "\\*"):
         if rec == None:
             print "Centroid does not fall in a lidar tile"
 
+            # 2) Centroid not in laz tile so next query first tile that intersects solar tile
             q = """
                 SELECT l.tile,l.q250k FROM sa_fishnets s,lidar_bbox l
                 WHERE ST_INTERSECTS(s.the_geom,l.the_geom) AND s.id=""" + imgnumber + """
@@ -53,6 +56,8 @@ for dirname in glob.glob(solardir + "\\*"):
             t = dbconn.run_query(q)
             rec = t.fetchone()
             if rec == None:
+
+                # 3) Finally, catch stray tiles by querying the nearest laz tile if none intersect (there was a handful of these due to how we created the solar fishnet)
                 q = """
                     SELECT l.tile,l.q250k FROM sa_fishnets s,lidar_bbox l
                     WHERE ST_INTERSECTS(ST_BUFFER(s.the_geom,500),l.the_geom) AND s.id=""" + imgnumber + """
@@ -61,6 +66,7 @@ for dirname in glob.glob(solardir + "\\*"):
                 rec = t.fetchone()
 
         if rec == None:
+            # Handle errors (there were none when I ran this)
             qq = """
                 UPDATE sa_fishnets SET 
                 solarfile = 'error'
@@ -88,6 +94,7 @@ for dirname in glob.glob(solardir + "\\*"):
                     shutil.copy2(srcfile, destdir + "\\" + dstfile)
                     print
 
+                    # 4) Write the filename, q250k index, and path back to the database
                     qq = """
                     UPDATE sa_fishnets SET 
                     filename = '""" + fn + """.img',
